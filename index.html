@@ -110,13 +110,19 @@ button,input,textarea{font:inherit;color:inherit}
 @keyframes bump{0%{transform:scale(1.5)}100%{transform:none}}
 
 /* ---------- abas ---------- */
-.tabs{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-bottom:14px}
+.tabs{display:grid;grid-template-columns:repeat(6,1fr);gap:8px;margin-bottom:14px}
 .tabs button{cursor:pointer;background:#0b0705;border:0;border-bottom:2px solid var(--line);padding:12px 6px;font-size:14px;font-weight:600;color:var(--mut);letter-spacing:.04em;display:flex;gap:8px;align-items:center;justify-content:center;transition:color .15s,background .15s,border-color .15s}
 .tabs button svg{width:17px;height:17px}
 .tabs button:hover{color:var(--text);background:#160d08}
 .tabs button.act{color:var(--amber);border-bottom-color:var(--ember);background:linear-gradient(180deg,rgba(255,122,24,.14),transparent)}
 .tabc.enter{animation:wipe .32s ease-out}
 @keyframes wipe{0%{clip-path:inset(0 100% 0 0);opacity:.2}100%{clip-path:inset(0 0 0 0);opacity:1}}
+
+/* ---------- história ---------- */
+.prose{max-width:68ch}
+.prose p{font-size:14.5px;line-height:1.75;color:#e8dcc8;margin:0 0 1em}
+.prose p:first-of-type::first-letter{font-family:var(--f);font-size:2.6em;float:left;line-height:1;margin:2px 8px 0 0;color:var(--amber)}
+.prose .say{border-left:2px solid var(--ember);padding-left:12px;color:var(--amber);font-style:italic}
 
 .cols{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:14px;align-items:start}
 .stack{display:grid;gap:14px}
@@ -258,7 +264,7 @@ body.ember-on .who h1{color:#ffd9a6;text-shadow:0 0 22px rgba(255,122,24,.7)}
   .app{padding:12px 12px 100px}
   .who h1{font-size:32px}
   .hpnum .cur{font-size:68px}
-  .tabs{position:fixed;left:0;right:0;bottom:0;z-index:30;margin:0;gap:0;grid-template-columns:repeat(5,1fr);background:rgba(10,7,6,.97);border-top:1px solid var(--line2);padding-bottom:env(safe-area-inset-bottom,0)}
+  .tabs{position:fixed;left:0;right:0;bottom:0;z-index:30;margin:0;gap:0;grid-template-columns:repeat(6,1fr);background:rgba(10,7,6,.97);border-top:1px solid var(--line2);padding-bottom:env(safe-area-inset-bottom,0)}
   .tabs button{flex-direction:column;gap:3px;font-size:11px;padding:9px 2px;border-bottom:0;border-top:2px solid transparent}
   .tabs button.act{border-top-color:var(--ember)}
   .two{grid-template-columns:1fr}
@@ -296,6 +302,7 @@ body.ember-on .who h1{color:#ffd9a6;text-shadow:0 0 22px rgba(255,122,24,.7)}
     <symbol id="i-star" viewBox="0 0 24 24"><path d="M12 2l3 7 7 .6-5.4 4.6 1.7 7.3L12 17.8 5.7 21.5l1.7-7.3L2 9.6 9 9z"/></symbol>
     <symbol id="i-bag" viewBox="0 0 24 24"><path d="M5 8h14l1 13H4z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/></symbol>
     <symbol id="i-user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.5 3.5-7 8-7s8 2.5 8 7"/></symbol>
+    <symbol id="i-book" viewBox="0 0 24 24"><path d="M12 5c-2-1.5-5-2-8-2v16c3 0 6 .5 8 2 2-1.5 5-2 8-2V3c-3 0-6 .5-8 2z"/><path d="M12 5v16"/></symbol>
   </defs>
 </svg>
 
@@ -442,7 +449,7 @@ function renderTop(){
 function pips(kind,n){var h="";for(var i=0;i<3;i++){h+='<button class="pip '+kind+(i<n?" on":"")+'" data-act="death" data-k="'+kind+'" data-i="'+i+'" aria-label="'+(kind==="s"?"sucesso":"falha")+' '+(i+1)+'"></button>';}return h;}
 
 function renderTabs(){
-  var T=[["jogo","Jogo","bolt"],["magias","Magias","flame"],["ficha","Ficha","user"],["poderes","Poderes","star"],["itens","Itens","bag"]];
+  var T=[["jogo","Jogo","bolt"],["magias","Magias","flame"],["ficha","Ficha","user"],["poderes","Poderes","star"],["itens","Itens","bag"],["historia","História","book"]];
   return '<nav class="tabs" role="tablist">'+T.map(function(t){return '<button role="tab" class="'+(S.tab===t[0]?"act":"")+'" data-act="tab" data-t="'+t[0]+'">'+ic(t[2])+t[1]+'</button>';}).join("")+'</nav>';
 }
 
@@ -560,6 +567,32 @@ function tabItens(){
   return h;
 }
 
+/* ================= aba História ================= */
+var STORY=[
+"Eu conheci meu pai — e as memórias que tenho dele são dolorosas. Ele era um kenku empenhado, mas profundamente amargurado com a vida. Obcecado em quebrar a maldição do nosso povo — a perda do voo, da voz e da liberdade que um dia tivemos — ele vivia como se cada dia fosse uma corrida contra o esquecimento. Para ele, nada tinha valor além da verdade. E, por isso, ele nunca teve tempo para mim.",
+"Ele não era cruel comigo… ele simplesmente não estava presente. Eu cresci tentando chamar sua atenção em meio a livros, mapas e teorias que sempre pareciam mais importantes do que eu. O amor nunca veio dele da forma que uma criança espera. Ele estava sempre distante, sempre ocupado, sempre ausente. Então, um dia, ele desapareceu. Sem despedidas. Sem explicações. Sem uma última conversa. Apenas sumiu.",
+"Lembro da minha mãe esperando por notícias durante meses. Lembro do olhar dela se voltando para a estrada sempre que alguém passava perto de nossa casa. Eu também esperei. No começo, acreditava que ele voltaria. Depois, apenas queria entender por que foi embora. Com o passar dos anos, a esperança deu lugar ao vazio. E aquele vazio silencioso cresceu dentro de mim.",
+"Mas minha infância não foi feita apenas de ausência. Minha mãe e meu irmão preenchiam o espaço que ele deixou para trás. Minha infância foi dividida entre dois mundos. O mundo do meu pai era distante. O mundo dentro de casa era calor, esforço e amor. Mesmo com todas as dificuldades, nós três tentávamos encontrar pequenos momentos de felicidade.",
+"Quando tudo ficava pesado demais, fugíamos para pequenos instantes de liberdade. Ir ao rio quando era possível. Correr pelos campos de flores próximos de casa. Deitar na grama e observar o céu até o pôr do sol desaparecer. Esses momentos eram pequenos. Mas eram nossos. E, por alguns instantes, pareciam suficientes para nos convencer de que ainda éramos uma família. Minha mãe sorria nesses momentos. Meu irmão também. E eu acreditava que, talvez, as coisas pudessem ficar bem.",
+"Minha mãe amava o céu. Às vezes, quando nos deitávamos na grama observando as nuvens passarem, ela apontava para o horizonte e imaginava como seria atravessá-las. Ela dizia que os kenku haviam perdido muitas coisas. Mas que a mais cruel de todas havia sido perder o voo.",
+"§Você consegue imaginar? Ver o mundo acima das nuvens. Sentir o vento sem limites. Tocar o céu de verdade.",
+"Eu sempre respondia que um dia faria isso. Ela ria. Não porque acreditava que fosse possível. Mas porque gostava de me ouvir sonhar. Mesmo depois de tudo o que nosso povo perdeu, ela ainda conseguia olhar para o céu sem sentir amargura. Acho que era por isso que eu a admirava tanto.",
+"Ao contrário de muitos kenku, eu conseguia imitar vozes com facilidade. Minha mãe dizia que aquilo era raro, quase como se o mundo estivesse tentando me devolver algo que nossa espécie havia perdido. Ela era a única que acreditava em mim sem reservas. A única que me entendia. Meu irmão também me apoiava. Ele caminhava ao meu lado. Dividia minhas alegrias. Protegia meus segredos. Nunca me deixou sozinho. Eles eram meu mundo. Até a noite do incêndio.",
+"As chamas vieram sem aviso. Rápidas demais. Violentas demais. Não pareciam naturais. Era como se o próprio fogo tivesse escolhido nossa casa. O calor devorava tudo. A fumaça tornava impossível respirar. E os gritos desapareceram rápido demais. Corri entre os escombros chamando por eles. Chamando por qualquer um. Mas só encontrei silêncio. Então encontrei meu irmão. Caído entre vigas quebradas e cinzas. Por um instante, tentei acreditar que ele ainda estava vivo. Sacudi seus ombros. Chamei seu nome. Implorei para que respondesse. Mas ele não respondeu. Nunca respondeu. A pessoa que esteve ao meu lado durante toda a minha vida havia partido sem que eu pudesse dizer adeus.",
+"Mas eu ainda precisava encontrar minha mãe. Eu precisava. Eu tinha que encontrá-la. Quando a encontrei, ela estava presa sob os destroços. O fogo iluminava seu rosto. Ela estava ferida demais. Eu sabia. Ela também sabia. Tentei mover as pedras. Tentei puxá-la. Tentei qualquer coisa. Minhas mãos sangravam. Mas nada era suficiente. Então ela segurou minha mão. Mesmo à beira da morte, tentou me confortar. Como sempre fazia. Ela me olhou uma última vez. E sorriu. Um sorriso pequeno. Fraco. Mas cheio de amor. Então disse:",
+"§O mundo ainda espera algo de você. Encontre esse propósito…",
+"§E quando encontrar… Voe por todos nós.",
+"Eu queria responder. Queria dizer que a amava. Queria pedir que não me deixasse. Queria dizer qualquer coisa. Mas as palavras morreram antes de alcançar minha garganta. E então sua mão perdeu a força. Seu olhar se apagou. E o silêncio tomou tudo. Naquela noite, perdi minha mãe. Perdi meu irmão. Perdi meu lar. E perdi a última parte de mim que ainda acreditava que o mundo era um lugar gentil.",
+"O vazio deixado pelo meu pai se misturou ao horror daquela noite. A ausência dele já era uma ferida. Mas naquele momento ela se transformou em revolta. Onde ele estava? Por que não voltou? Por que não estava ali quando mais precisávamos dele? Por que eu estava sozinho? Algo dentro de mim se rompeu de forma irreversível. Quando tento falar, as palavras não vêm como deveriam. Elas se quebram. Se distorcem. Se tornam ecos fragmentados, como brasas presas na garganta.",
+"Foi nesse vazio que a chama dourada despertou em minhas veias. Não como destruição. Mas como algo antigo. Algo vivo. Algo que se recusava a morrer. Quando acordei, tudo ao meu redor era cinzas. E a última coisa que vi antes da escuridão engolir tudo… foi o céu. O mesmo céu que minha mãe me ensinou a admirar. O mesmo céu que meu povo perdeu. O mesmo céu que um dia eu jurei alcançar.",
+"Hoje, viajo pelo mundo. Não falo como antes, mas observo. Aprendo. Memorizo o que vejo e ouço. Busco respostas sobre a maldição dos kenku. Busco entender o que meu pai encontrou antes de desaparecer. Busco descobrir se ele me abandonou… ou se estava tentando nos salvar. E busco compreender o fogo que agora vive dentro de mim. Carrego cicatrizes que não pertencem apenas ao meu corpo, mas à minha alma. Mas transformei o vazio em caminho. A saudade em força. E a dor em propósito. Porque, no fim, o fogo levou minha família. As cinzas levaram minha infância. E a dor levou quem eu costumava ser. Mas ainda estou aqui. Carregando os nomes daqueles que perdi. Caminhando por aqueles que não podem mais caminhar. Olhando para o céu por aqueles que nunca puderam alcançá-lo. E enquanto houver uma única brasa acesa dentro de mim… nenhum deles será esquecido."
+];
+function tabHistoria(){
+  var h='<div class="cols" style="grid-template-columns:minmax(0,1fr)"><section class="panel pad"><div class="ptitle">'+ic("book")+'História de Echo</div><div class="prose">';
+  h+=STORY.map(function(p){return p.charAt(0)==="§"?'<p class="say">'+esc(p.slice(1))+'</p>':'<p>'+esc(p)+'</p>';}).join("");
+  return h+'</div></section></div>';
+}
+
 /* ================= mini barra ================= */
 function renderMini(){
   $("#mini").innerHTML='<div class="it num">'+ic("heart").replace('<svg','<svg width="14" height="14"')+'&nbsp;'+S.hp+'<small>/'+MAXHP+(S.temp?' +'+S.temp:'')+'</small></div>'
@@ -573,7 +606,7 @@ function renderMini(){
 function render(){
   var top=renderTop();
   var body;
-  switch(S.tab){case "magias":body=tabMagias();break;case "ficha":body=tabFicha();break;case "poderes":body=tabPoderes();break;case "itens":body=tabItens();break;default:body=tabJogo();}
+  switch(S.tab){case "magias":body=tabMagias();break;case "ficha":body=tabFicha();break;case "poderes":body=tabPoderes();break;case "itens":body=tabItens();break;case "historia":body=tabHistoria();break;default:body=tabJogo();}
   var app=$("#app");
   var keepScroll=window.scrollY;
   app.className="app"+(booting?" boot":"");
