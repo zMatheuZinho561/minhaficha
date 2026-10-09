@@ -1,0 +1,748 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Echo — Ficha</title>
+<style>
+:root{
+  --bg:#0a0706; --panel:#130d0a; --panel2:#1b130e; --line:#3d2b1f; --line2:#5a4130;
+  --ember:#ff7a18; --red:#ff2d55; --amber:#f5b83d; --green:#5fd38d;
+  --text:#f6ebe0; --mut:#b39d8a; --dim:#7d6a5b;
+  --font:Bahnschrift,"Segoe UI Variable","Segoe UI",system-ui,-apple-system,Roboto,sans-serif;
+}
+*{box-sizing:border-box}
+html{scroll-padding-top:70px}
+body{margin:0;background:var(--bg);color:var(--text);font-family:var(--font);font-size:15px;line-height:1.4;
+  background-image:radial-gradient(1100px 520px at 50% -120px,rgba(255,92,24,.16),transparent 70%),
+  repeating-linear-gradient(0deg,rgba(255,255,255,.012) 0 1px,transparent 1px 3px);
+  min-height:100vh;padding-top:env(safe-area-inset-top,0)}
+#embers{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:0;opacity:.7}
+.app{position:relative;z-index:1;max-width:1160px;margin:0 auto;padding:16px 16px 40px}
+button,input,textarea{font:inherit;color:inherit}
+.num{font-variant-numeric:tabular-nums;font-variation-settings:"wdth" 80;letter-spacing:.01em}
+.mut{color:var(--mut)} .dim{color:var(--dim)} .grow{flex:1}
+.ember{color:var(--ember)}
+
+/* ---------- painéis chanfrados ---------- */
+.panel{--cut:14px;position:relative;background:var(--line);
+  clip-path:polygon(0 0,calc(100% - var(--cut)) 0,100% var(--cut),100% 100%,var(--cut) 100%,0 calc(100% - var(--cut)))}
+.panel::before{content:"";position:absolute;inset:1px;background:linear-gradient(180deg,var(--panel2),var(--panel));
+  clip-path:polygon(0 0,calc(100% - var(--cut)) 0,100% var(--cut),100% 100%,var(--cut) 100%,0 calc(100% - var(--cut)))}
+.panel>*{position:relative}
+.panel.pad{padding:16px 18px 18px}
+.panel.sm{--cut:9px}
+.ptitle{display:flex;align-items:center;gap:10px;margin:0 0 12px;font-size:13px;font-weight:600;color:var(--ember);letter-spacing:.06em;text-transform:uppercase}
+.ptitle::after{content:"";height:1px;flex:0 0 18px;background:var(--line2);order:5;display:none}
+.ptitle svg{width:16px;height:16px;flex:none}
+.sub{font-size:12px;color:var(--mut);letter-spacing:.04em;text-transform:uppercase;margin:14px 0 8px}
+
+/* ---------- botões ---------- */
+.btn{--c:8px;cursor:pointer;background:#0e0906;border:0;padding:10px 16px;font-size:13px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;
+  position:relative;color:var(--text);transition:background .15s,color .15s,transform .1s;
+  clip-path:polygon(0 0,calc(100% - var(--c)) 0,100% var(--c),100% 100%,var(--c) 100%,0 calc(100% - var(--c)));
+  box-shadow:inset 0 0 0 1px var(--line2)}
+.btn:hover{background:#25160d;color:#fff}
+.btn:active{transform:translateY(1px)}
+.btn.pri{background:linear-gradient(90deg,var(--ember),var(--red));color:#190804;box-shadow:none}
+.btn.pri:hover{filter:brightness(1.12);color:#190804}
+.btn.xs{padding:6px 10px;font-size:12px}
+.btn[disabled]{opacity:.4;cursor:not-allowed}
+.btn.on{background:linear-gradient(90deg,#ffb23d,var(--ember));color:#190804;box-shadow:none}
+.step{display:inline-flex;align-items:center;gap:0}
+.step button{width:30px;height:30px;padding:0;cursor:pointer;background:#0e0906;border:1px solid var(--line2);color:var(--text);font-size:16px;line-height:1}
+.step button:hover{background:#25160d}
+.step b{min-width:34px;text-align:center;font-weight:700}
+:focus-visible{outline:2px solid var(--amber);outline-offset:2px}
+
+/* ---------- cabeçalho ---------- */
+.top{display:flex;align-items:center;gap:16px;flex-wrap:wrap;margin-bottom:14px}
+.ava{width:68px;height:68px;flex:none;position:relative;cursor:pointer;background:var(--line);
+  clip-path:polygon(0 0,calc(100% - 14px) 0,100% 14px,100% 100%,14px 100%,0 calc(100% - 14px))}
+.ava>span,.ava>img{position:absolute;inset:1px;width:calc(100% - 2px);height:calc(100% - 2px);
+  clip-path:polygon(0 0,calc(100% - 14px) 0,100% 14px,100% 100%,14px 100%,0 calc(100% - 14px));object-fit:cover}
+.ava>span{display:grid;place-items:center;background:linear-gradient(160deg,#3a1b0a,#150c07);font-size:34px;font-weight:700;color:var(--amber);font-variation-settings:"wdth" 75}
+.ava input{display:none}
+.who{min-width:180px;flex:1}
+.who h1{margin:0;font-size:38px;line-height:1;font-weight:700;font-variation-settings:"wdth" 75;letter-spacing:.02em}
+.who p{margin:6px 0 0;color:var(--mut);font-size:14px}
+.actions{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.inata{display:flex;align-items:center;gap:10px}
+.rnd{display:none;align-items:center;gap:8px;color:var(--amber);font-weight:700}
+.ember-on .rnd{display:flex}
+
+/* ---------- vitais ---------- */
+.vitals{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);gap:14px;margin-bottom:14px}
+.hpnum{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+.hpnum .cur{font-size:84px;line-height:.9;font-weight:700;font-variation-settings:"wdth" 70;text-shadow:0 0 18px rgba(255,122,24,.35)}
+.hpnum .cur.low{color:#ff6b7f;text-shadow:0 0 18px rgba(255,45,85,.4)}
+.hpnum .max{font-size:26px;color:var(--mut);font-weight:600}
+.hpnum .tmp{margin-left:auto;color:var(--amber);font-weight:700;font-size:15px}
+.bar{position:relative;height:16px;margin:12px 0 14px;background:#070403;box-shadow:inset 0 0 0 1px var(--line)}
+.bar .ghost,.bar .fill{position:absolute;left:0;top:0;bottom:0;width:0}
+.bar .fill{transition:width .35s ease,background .3s}
+.bar .ghost{background:#fff;opacity:.55;transition:width .7s ease .4s}
+.bar .fill.hi{background:linear-gradient(90deg,#2fa968,var(--green))}
+.bar .fill.mid{background:linear-gradient(90deg,#d98a14,var(--amber))}
+.bar .fill.lo{background:linear-gradient(90deg,#c01a3a,var(--red))}
+.bar .ticks{position:absolute;inset:0;background-image:repeating-linear-gradient(90deg,transparent 0,transparent calc(var(--seg) - 1px),rgba(0,0,0,.75) calc(var(--seg) - 1px),rgba(0,0,0,.75) var(--seg))}
+.hpctl{display:flex;gap:8px;align-items:stretch;flex-wrap:wrap}
+.hpctl input{width:96px;background:#080504;border:1px solid var(--line2);padding:8px 10px;font-size:18px;font-weight:700;text-align:center}
+.hprow{display:flex;gap:18px;flex-wrap:wrap;align-items:center;margin-top:14px;padding-top:12px;border-top:1px solid var(--line)}
+.hprow .lab{font-size:13px;color:var(--mut);margin-right:6px}
+.pips{display:inline-flex;gap:5px;vertical-align:middle}
+.pip{width:15px;height:15px;border:1.5px solid var(--line2);background:transparent;cursor:pointer;padding:0;transform:rotate(45deg)}
+.pip.s.on{background:var(--green);border-color:var(--green)}
+.pip.f.on{background:var(--red);border-color:var(--red)}
+.hit{animation:hit .45s}
+.heal{animation:heal .6s}
+@keyframes hit{0%{color:#fff;transform:translateX(0)}20%{transform:translateX(-5px)}40%{transform:translateX(5px)}60%{transform:translateX(-3px)}100%{transform:none}}
+@keyframes heal{0%{color:var(--green);text-shadow:0 0 28px var(--green)}100%{}}
+
+.tiles{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.tile{padding:12px 14px 12px}
+.tile .l{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--mut);letter-spacing:.04em;text-transform:uppercase}
+.tile .l svg{width:14px;height:14px}
+.tile .v{font-size:42px;font-weight:700;line-height:1.05;margin-top:2px;font-variation-settings:"wdth" 72;text-shadow:0 0 12px rgba(255,122,24,.25)}
+.tile .n{font-size:11px;color:var(--dim);margin-top:2px;min-height:14px}
+.tile.hot .v{color:var(--amber);text-shadow:0 0 16px rgba(245,184,61,.6)}
+.tile .v.bump{animation:bump .5s}
+@keyframes bump{0%{transform:scale(1.5)}100%{transform:none}}
+
+/* ---------- abas ---------- */
+.tabs{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-bottom:14px}
+.tabs button{cursor:pointer;background:#0b0705;border:0;border-bottom:2px solid var(--line);padding:12px 6px;font-size:14px;font-weight:600;color:var(--mut);letter-spacing:.04em;display:flex;gap:8px;align-items:center;justify-content:center;transition:color .15s,background .15s,border-color .15s}
+.tabs button svg{width:17px;height:17px}
+.tabs button:hover{color:var(--text);background:#160d08}
+.tabs button.act{color:var(--amber);border-bottom-color:var(--ember);background:linear-gradient(180deg,rgba(255,122,24,.14),transparent)}
+.tabc.enter{animation:wipe .32s ease-out}
+@keyframes wipe{0%{clip-path:inset(0 100% 0 0);opacity:.2}100%{clip-path:inset(0 0 0 0);opacity:1}}
+
+.cols{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:14px;align-items:start}
+.stack{display:grid;gap:14px}
+.three{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+
+/* ---------- gemas de recurso ---------- */
+.res{display:flex;align-items:center;gap:14px;padding:8px 0;border-top:1px solid var(--line);flex-wrap:wrap}
+.res:first-of-type{border-top:0}
+.res .name{width:130px;font-weight:600}
+.res .name small{display:block;color:var(--dim);font-weight:400;font-size:12px}
+.gems{display:flex;gap:9px;flex-wrap:wrap}
+.gem{width:28px;height:28px;border:0;padding:0;cursor:pointer;position:relative;transition:transform .12s}
+.gem:hover{transform:scale(1.1)}
+.gem.round{border-radius:50%;background:radial-gradient(circle at 35% 30%,#ffe3ad,var(--ember) 55%,#9c2a00);box-shadow:0 0 12px rgba(255,122,24,.6)}
+.gem.round.used{background:#120b07;box-shadow:inset 0 0 0 2px #4a362a}
+.gem.dia{clip-path:polygon(50% 0,100% 50%,50% 100%,0 50%);background:linear-gradient(160deg,#ffe49a,var(--amber) 55%,#9a6400)}
+.gem.dia.used{background:#2b1f17}
+.gem.hexa{clip-path:polygon(25% 4%,75% 4%,100% 50%,75% 96%,25% 96%,0 50%);background:linear-gradient(160deg,#ff9a9a,var(--red) 55%,#8a0f2a)}
+.gem.hexa.used{background:#2b1520}
+.gem.fx{animation:gempop .45s}
+@keyframes gempop{0%{transform:scale(1.7);filter:brightness(2.5)}100%{transform:none;filter:none}}
+.res .cnt{margin-left:auto;font-weight:700;color:var(--mut)}
+
+/* ---------- Inata ---------- */
+.inbox{border-left:3px solid var(--line2);padding:2px 0 2px 14px;color:var(--mut);font-size:14px}
+.inbox.on{border-left-color:var(--ember);color:var(--text)}
+.inbox ul{margin:6px 0 0;padding-left:18px}
+.inbox li{margin:3px 0}
+.inbox b{color:var(--amber)}
+
+/* ---------- listas ---------- */
+.chk{display:flex;align-items:center;gap:10px;padding:9px 2px;border-top:1px solid var(--line);cursor:pointer;user-select:none}
+.chk:first-of-type{border-top:0}
+.box{width:18px;height:18px;border:1.5px solid var(--line2);flex:none;display:grid;place-items:center;transition:background .15s}
+.chk.on .box{background:var(--ember);border-color:var(--ember)}
+.chk.on .box::after{content:"";width:8px;height:4px;border-left:2px solid #190804;border-bottom:2px solid #190804;transform:rotate(-45deg) translate(1px,-1px)}
+.chk.on span{color:var(--mut);text-decoration:line-through;text-decoration-color:var(--dim)}
+.chk small{display:block;color:var(--dim);font-size:12px}
+.chips{display:flex;flex-wrap:wrap;gap:7px}
+.chip{border:1px solid var(--line2);background:#0c0805;color:var(--mut);padding:5px 11px;font-size:13px;cursor:pointer;transition:all .15s;clip-path:polygon(0 0,calc(100% - 6px) 0,100% 6px,100% 100%,6px 100%,0 calc(100% - 6px))}
+.chip:hover{color:var(--text);border-color:var(--ember)}
+.chip.on{background:rgba(255,45,85,.22);border-color:var(--red);color:#ffd7de}
+.chip.static{cursor:default}
+.chip.static:hover{color:var(--mut);border-color:var(--line2)}
+.field{width:100%;background:#080504;border:1px solid var(--line2);padding:9px 11px;font-size:14px}
+textarea.field{min-height:150px;resize:vertical}
+.ref{display:grid;grid-template-columns:1fr auto auto;gap:4px 14px;align-items:baseline;padding:9px 0;border-top:1px solid var(--line)}
+.ref:first-of-type{border-top:0}
+.ref .nm{font-weight:600}
+.ref .nm small{display:block;color:var(--dim);font-weight:400;font-size:12px}
+.ref .hit-b{color:var(--amber);font-weight:700;min-width:44px;text-align:right}
+.ref .dm{color:var(--text);min-width:110px;text-align:right}
+
+/* ---------- magias ---------- */
+.lvhead{display:flex;align-items:center;gap:14px;margin:0 0 10px;flex-wrap:wrap}
+.lvhead h2{margin:0;font-size:20px;font-weight:700;font-variation-settings:"wdth" 75}
+.spell{padding:12px 0;border-top:1px solid var(--line)}
+.spell:first-of-type{border-top:0}
+.sp1{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.sp1 h3{margin:0;font-size:17px;font-weight:700}
+.tag{font-size:11px;padding:2px 7px;border:1px solid var(--line2);color:var(--mut);letter-spacing:.04em}
+.tag.am{border-color:var(--amber);color:var(--amber)}
+.tag.rd{border-color:var(--red);color:#ff9fb0}
+.meta{font-size:13px;color:var(--mut);margin:3px 0}
+.desc{font-size:14px;margin:4px 0 0}
+.fire{margin-top:6px;font-size:13px;color:var(--amber);display:none}
+.ember-on .fire{display:block}
+.cast{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap;align-items:center}
+.spgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;align-items:start}
+
+/* ---------- ficha ---------- */
+.attrs{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.attr{padding:10px 8px 10px;text-align:center}
+.attr .k{font-size:12px;color:var(--mut);letter-spacing:.06em}
+.attr .m{font-size:44px;font-weight:700;line-height:1.05;font-variation-settings:"wdth" 72}
+.attr .s{display:inline-block;margin-top:2px;font-size:12px;color:var(--mut);border:1px solid var(--line2);padding:1px 10px}
+.rows{display:grid}
+.row2{display:flex;align-items:center;gap:10px;padding:7px 2px;border-top:1px solid var(--line)}
+.row2:first-child{border-top:0}
+.dot{width:10px;height:10px;transform:rotate(45deg);border:1.5px solid var(--dim);flex:none}
+.row2.p .dot{background:var(--ember);border-color:var(--ember);box-shadow:0 0 8px rgba(255,122,24,.7)}
+.row2 .a{color:var(--dim);font-size:12px;margin-left:4px}
+.row2 .b{margin-left:auto;font-weight:700;font-size:16px}
+.row2.p .b{color:var(--amber)}
+.row2.p span.n{font-weight:600}
+.two{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));column-gap:22px}
+
+/* ---------- poderes ---------- */
+.pw{padding:12px 0;border-top:1px solid var(--line)}
+.pw:first-of-type{border-top:0}
+.pw h3{margin:0 0 3px;font-size:16px;font-weight:700;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.pw p{margin:0;color:var(--mut);font-size:14px}
+.pw p b{color:var(--text)}
+
+/* ---------- itens ---------- */
+.item{display:flex;align-items:center;gap:8px;padding:6px 0;border-top:1px solid var(--line)}
+.item:first-of-type{border-top:0}
+.item input.field{padding:6px 9px}
+.coin{text-align:center;padding:8px}
+.coin input{width:100%;background:#080504;border:1px solid var(--line2);padding:6px;text-align:center;font-size:20px;font-weight:700;margin-top:4px}
+.coin .k{font-size:12px;color:var(--mut)}
+.coin.po .k{color:var(--amber)}
+.xbtn{background:none;border:0;color:var(--dim);cursor:pointer;font-size:18px;padding:2px 8px}
+.xbtn:hover{color:var(--red)}
+
+/* ---------- mini barra e toast ---------- */
+.mini{position:fixed;top:0;left:0;right:0;z-index:20;display:flex;gap:18px;align-items:center;justify-content:center;flex-wrap:wrap;padding:calc(8px + env(safe-area-inset-top,0)) 14px 8px;
+  background:rgba(10,7,6,.94);border-bottom:1px solid var(--line2);transform:translateY(-110%);transition:transform .25s;backdrop-filter:blur(6px)}
+.mini.show{transform:none}
+.mini .it{display:flex;align-items:baseline;gap:6px;font-weight:700}
+.mini .it small{color:var(--mut);font-weight:500;font-size:12px}
+.mini .it.hot{color:var(--amber)}
+#toast{position:fixed;left:50%;bottom:calc(86px + env(safe-area-inset-bottom,0));transform:translate(-50%,20px);background:#1c0f08;border:1px solid var(--ember);padding:10px 18px;z-index:40;opacity:0;pointer-events:none;transition:all .22s;font-weight:600;max-width:90vw;text-align:center}
+#toast.show{opacity:1;transform:translate(-50%,0)}
+#modal{position:fixed;inset:0;z-index:50;display:none;place-items:center;background:rgba(0,0,0,.7);padding:20px}
+#modal.show{display:grid}
+#modal .panel{max-width:420px;width:100%}
+
+/* ---------- Inata ativa: brilho estático nas bordas ---------- */
+body.ember-on::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:2;box-shadow:inset 0 0 70px rgba(255,92,24,.30),inset 0 0 6px rgba(255,160,60,.5)}
+body.ember-on .who h1{color:#ffd9a6;text-shadow:0 0 22px rgba(255,122,24,.7)}
+
+.boot .panel,.boot .tabs{animation:boot .5s both}
+.boot .vitals .panel:nth-child(1){animation-delay:.05s}
+.boot .tiles .panel:nth-child(1){animation-delay:.12s}
+.boot .tiles .panel:nth-child(2){animation-delay:.18s}
+.boot .tiles .panel:nth-child(3){animation-delay:.24s}
+.boot .tiles .panel:nth-child(4){animation-delay:.30s}
+.boot .tiles .panel:nth-child(5){animation-delay:.36s}
+.boot .tiles .panel:nth-child(6){animation-delay:.42s}
+.boot .tabs{animation-delay:.5s}
+@keyframes boot{0%{opacity:0;clip-path:inset(0 100% 0 0)}100%{opacity:1;clip-path:inset(0 0 0 0)}}
+
+@media (max-width:980px){
+  .vitals{grid-template-columns:1fr}
+  .cols,.spgrid{grid-template-columns:1fr}
+}
+@media (max-width:860px){
+  .app{padding:12px 12px 100px}
+  .who h1{font-size:32px}
+  .hpnum .cur{font-size:68px}
+  .tabs{position:fixed;left:0;right:0;bottom:0;z-index:30;margin:0;gap:0;grid-template-columns:repeat(5,1fr);background:rgba(10,7,6,.97);border-top:1px solid var(--line2);padding-bottom:env(safe-area-inset-bottom,0)}
+  .tabs button{flex-direction:column;gap:3px;font-size:11px;padding:9px 2px;border-bottom:0;border-top:2px solid transparent}
+  .tabs button.act{border-top-color:var(--ember)}
+  .two{grid-template-columns:1fr}
+  .tile .v{font-size:36px}
+  .ref{grid-template-columns:1fr auto}
+  .ref .dm{grid-column:1/-1;text-align:left}
+}
+@media (max-width:420px){
+  .three{grid-template-columns:1fr 1fr}
+  .tiles{grid-template-columns:repeat(2,1fr)}
+}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation:none!important;transition:none!important}
+  #embers{display:none}
+}
+</style>
+</head>
+<body>
+<canvas id="embers"></canvas>
+<div class="mini" id="mini"></div>
+<div class="app" id="app"></div>
+<div id="toast"></div>
+<div id="modal"></div>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="i-heart" viewBox="0 0 24 24"><path d="M12 21s-8-5.5-8-11a4.5 4.5 0 0 1 8-2.5A4.5 4.5 0 0 1 20 10c0 5.5-8 11-8 11z"/></symbol>
+    <symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 2l8 3v6c0 5-3.5 9-8 11-4.5-2-8-6-8-11V5z"/></symbol>
+    <symbol id="i-bolt" viewBox="0 0 24 24"><path d="M13 2L4 14h6l-1 8 9-12h-6z"/></symbol>
+    <symbol id="i-boot" viewBox="0 0 24 24"><path d="M7 3h5v7l7 3v5H6z"/><path d="M6 21h13"/></symbol>
+    <symbol id="i-flame" viewBox="0 0 24 24"><path d="M12 2c1 4 5 6 5 11a5 5 0 0 1-10 0c0-2 1-3 2-4 0 2 1 3 2 3-1-4 0-7 1-10z"/></symbol>
+    <symbol id="i-target" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4"/><path d="M12 1v5M12 18v5M1 12h5M18 12h5"/></symbol>
+    <symbol id="i-eye" viewBox="0 0 24 24"><path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></symbol>
+    <symbol id="i-play" viewBox="0 0 24 24"><path d="M4 4h16v16H4z"/><path d="M8 9h8M8 13h8M8 17h5"/></symbol>
+    <symbol id="i-star" viewBox="0 0 24 24"><path d="M12 2l3 7 7 .6-5.4 4.6 1.7 7.3L12 17.8 5.7 21.5l1.7-7.3L2 9.6 9 9z"/></symbol>
+    <symbol id="i-bag" viewBox="0 0 24 24"><path d="M5 8h14l1 13H4z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/></symbol>
+    <symbol id="i-user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.5 3.5-7 8-7s8 2.5 8 7"/></symbol>
+  </defs>
+</svg>
+
+<script>
+(function(){
+"use strict";
+
+/* ================= dados fixos ================= */
+var MAXHP=16, HD=3, SLOTS={1:4,2:2}, SPMAX=3, INMAX=2, CHA=4, ROUNDS=10;
+
+var ATTRS=[["FOR",8,-1],["DES",17,3],["CON",16,3],["INT",10,0],["SAB",10,0],["CAR",18,4]];
+var SAVES=[["Força",-1,0],["Destreza",3,0],["Constituição",5,1],["Inteligência",0,0],["Sabedoria",0,0],["Carisma",6,1]];
+var SKILLS=[["Acrobacia","DES",3,0],["Arcanismo","INT",2,1],["Atletismo","FOR",-1,0],["Enganação","CAR",4,0],["Furtividade","DES",5,1],["História","INT",0,0],
+["Intuição","SAB",2,1],["Intimidação","CAR",4,0],["Investigação","INT",0,0],["Lidar c/ Animais","SAB",0,0],["Medicina","SAB",2,1],["Natureza","INT",0,0],
+["Percepção","SAB",0,0],["Performance","CAR",4,0],["Persuasão","CAR",4,0],["Prestidigitação","DES",5,1],["Religião","INT",2,1],["Sobrevivência","SAB",0,0]];
+var CONDS=["Caído","Agarrado","Contido","Envenenado","Amedrontado","Atordoado","Cego","Surdo","Enfeitiçado","Incapacitado","Invisível","Paralisado","Inconsciente","Exausto"];
+
+var ATTACKS=[
+ ["Bordão","impacto, versátil","+1","1d6-1 (1d8-1 com duas mãos)"],
+ ["Adagas ×2","acuidade, leve, arremesso","+5","1d4+3 perfurante"],
+ ["Raio de Fogo","truque, 36 m","+6","1d10 fogo"],
+ ["Toque Arrepiante","truque, 36 m","+6","1d8 necrótico"],
+ ["Orbe Cromática","nv 1, 27 m","+6","3d8 (tipo à escolha)"],
+ ["Raio Ardente","nv 2, 36 m, 3 raios","+6 cada","2d6 fogo por raio"]
+];
+
+var SPELLS=[
+ {id:"ilu",n:"Ilusão Menor",lv:0,t:"1 ação",r:"9 m",c:"V S M",d:"1 min",s:"Cria um som ou a imagem de um objeto num cubo de 1,5 m. Investigação (CD 14) revela a ilusão."},
+ {id:"mao",n:"Mãos Mágicas",lv:0,t:"1 ação",r:"9 m",c:"V S",d:"1 min",s:"Mão espectral que manipula objetos e abre portas e recipientes. Não ataca."},
+ {id:"rf",n:"Raio de Fogo",lv:0,t:"1 ação",r:"36 m",c:"V S",d:"Instantânea",s:"Ataque mágico +6, 1d10 de fogo. Incendeia objeto inflamável que ninguém esteja vestindo.",fire:1,dup:1},
+ {id:"ta",n:"Toque Arrepiante",lv:0,t:"1 ação",r:"36 m",c:"V S",d:"1 rodada",s:"Ataque mágico +6, 1d8 necrótico. O alvo não recupera PV até o início do seu próximo turno. Morto-vivo atinge você com desvantagem.",dup:1},
+ {id:"cf",n:"Curar Ferimentos",lv:1,t:"1 ação",r:"Toque",c:"V S",d:"Instantânea",s:"Cura 1d8+4 (CAR). Não afeta construtos nem mortos-vivos. Em nível maior: +1d8 por nível.",dup:1,bonus:1},
+ {id:"fam",n:"Invocar Familiar",lv:1,t:"1 hora",r:"3 m",c:"V S M (10 po)",d:"Instantânea",s:"Ritual: não gasta slot se conjurado como ritual (+10 min).",ritual:1,fam:1},
+ {id:"mf",n:"Mãos Flamejantes",lv:1,t:"1 ação",r:"Cone de 4,5 m",c:"V S",d:"Instantânea",s:"Resistência de DES (CD 14, ou 15 com Inata): 3d6 de fogo, metade se passar. Incendeia objetos inflamáveis. Em nível maior: +1d6.",fire:1},
+ {id:"oc",n:"Orbe Cromática",lv:1,t:"1 ação",r:"27 m",c:"V S M (diamante 50 po)",d:"Instantânea",s:"Ataque mágico +6, 3d8 de ácido, frio, fogo, elétrico, trovão ou veneno à escolha. Em nível maior: +1d8.",dup:1,fireopt:1},
+ {id:"ra",n:"Raio Ardente",lv:2,t:"1 ação",r:"36 m",c:"V S",d:"Instantânea",s:"3 raios, um ataque mágico +6 por raio, 2d6 de fogo cada. Podem ir para alvos diferentes. Slot de 3º+: +1 raio por nível acima do 2º.",fire:1,multi:1}
+];
+
+var POWERS=[
+ ["Feitiçaria Inata","Ação bônus · 1 min · 2 usos por descanso longo","CD das magias +1 (15) e vantagem nos ataques mágicos."],
+ ["Manto de Chamas","Ativa junto com a Inata","Emite luz de 9 m. Inimigo a 1,5 m que acertar você corpo a corpo sofre fogo igual ao seu CAR (4). Seu dano de fogo ganha +4, e o <b>primeiro dado de dano de fogo do turno</b> recebe +8."],
+ ["Incendiar","Toque","Incendeia magicamente um objeto inflamável (tocha, pano etc.)."],
+ ["Fonte de Magia","3 pontos de feitiçaria","Conjuração flexível: criar slot de 1º custa 2 PM e de 2º custa 3 PM. Converter slot em PM rende PM iguais ao nível do slot."],
+ ["Metamagia","2 opções","Magia Duplicada e Magia Potencializada. Só uma opção por magia, exceto Potencializada, que pode somar com outra."],
+ ["Túnica","Guarda um feitiço","Pode guardar um feitiço de até nível 3 sem gastar slot."],
+ ["Adepto Místico","Talento","Pode conjurar Armadura das Sombras sem custo."],
+ ["Perito em Falsificação","Kenku","Duplica escrita e artesanato de outras criaturas. Vantagem em testes para falsificar ou duplicar objetos."],
+ ["Mimetismo","Kenku","Imita sons e vozes que já ouviu."]
+];
+
+var TURN=[["a","Ação"],["b","Ação bônus","Se conjurar magia como ação bônus, só truque com ação neste turno"],["r","Reação"],["m","Movimento"],["f8","Já usei o +8 no primeiro dado de fogo","Só vale para o primeiro dado de dano de fogo do turno"]];
+
+var DEFAULT_ITEMS=[["Bordão",1],["Adaga",2],["Foco arcano",1],["Mochila",1],["Estrepes",1],["Pé de cabra",1],["Frasco de óleo",2],["Ração (dias)",10],["Corda",1],["Caixa de fogo",1],["Tocha",10],["Cantil",1],["Estojo de pergaminho",1],["Cobertor de inverno",1],["Roupas comuns",1],["Kit de herbalismo",1],["Poção (definir)",1]];
+
+/* ================= estado ================= */
+var KEY="echo-sheet-v4";
+function freshTurn(){return {a:0,b:0,r:0,m:0,f8:0};}
+function defaults(){
+  return {hp:4,temp:0,hdUsed:0,ds:0,df:0,used:{1:0,2:0},spUsed:0,inUsed:0,inOn:false,round:0,
+    conc:"",tunic:"",famil:false,turn:freshTurn(),cond:{},
+    items:DEFAULT_ITEMS.map(function(x){return {n:x[0],q:x[1]};}),
+    money:{pc:0,pp:5,pe:0,po:83,pl:0},notes:"",avatar:"",tab:"jogo",onlyProf:false};
+}
+var S=defaults();
+try{var raw=localStorage.getItem(KEY); if(raw){var o=JSON.parse(raw); for(var k in o){S[k]=o[k];}}}catch(e){}
+var hist=[];
+var fx=null, castMenu=null, animTab=false, prevPct=null, booting=true;
+
+function save(){try{localStorage.setItem(KEY,JSON.stringify(S));}catch(e){}}
+function snap(){var c=JSON.parse(JSON.stringify(S)); delete c.avatar; delete c.tab; return JSON.stringify(c);}
+function mutate(fn,f){hist.push(snap()); if(hist.length>40)hist.shift(); fn(); fx=f||null; save(); render();}
+function undo(){
+  if(!hist.length){toast("Nada para desfazer");return;}
+  var o=JSON.parse(hist.pop()); for(var k in o){S[k]=o[k];}
+  fx=null; save(); render(); toast("Última ação desfeita");
+}
+
+/* ================= helpers ================= */
+function $(s,r){return (r||document).querySelector(s);}
+function esc(t){return String(t==null?"":t).replace(/[&<>"']/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c];});}
+function ic(n){return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round" stroke-linecap="round"><use href="#i-'+n+'"/></svg>';}
+function sg(n){return (n>=0?"+":"")+n;}
+var tt;
+function toast(m){var t=$("#toast");t.textContent=m;t.classList.add("show");clearTimeout(tt);tt=setTimeout(function(){t.classList.remove("show");},2200);}
+function cd(){return S.inOn?15:14;}
+function avail(lv){return SLOTS[lv]-S.used[lv];}
+
+/* ================= peças ================= */
+function gems(kind,total,used,act,extra){
+  var h='<div class="gems">';
+  for(var i=0;i<total;i++){
+    var isUsed=i>=total-used;
+    var f=(fx&&fx.k===act&&fx.i===i)?" fx":"";
+    h+='<button class="gem '+kind+(isUsed?" used":"")+f+'" data-act="'+act+'" data-i="'+i+'" '+(extra||"")+' aria-label="'+act+' '+(i+1)+(isUsed?", gasto":", disponível")+'"></button>';
+  }
+  return h+"</div>";
+}
+function tile(label,icon,val,note,cls,k){
+  var b=(fx&&fx.k===k)?" bump":"";
+  return '<div class="panel sm tile '+(cls||"")+'"><div class="l">'+ic(icon)+label+'</div><div class="v num'+b+'">'+val+'</div><div class="n">'+note+'</div></div>';
+}
+function stepper(act,val,extra){
+  return '<span class="step"><button data-act="'+act+'" data-d="-1" '+(extra||"")+' aria-label="diminuir">−</button><b class="num">'+val+'</b><button data-act="'+act+'" data-d="1" '+(extra||"")+' aria-label="aumentar">+</button></span>';
+}
+
+/* ================= cabeçalho e vitais ================= */
+function renderTop(){
+  var pct=Math.max(0,Math.min(100,S.hp/MAXHP*100));
+  var st=pct>50?"hi":(pct>25?"mid":"lo");
+  var hpCls="cur num"+(S.hp/MAXHP<=0.25?" low":"")+(fx&&fx.k==="dmg"?" hit":"")+(fx&&fx.k==="heal"?" heal":"");
+  var ava=S.avatar?'<img src="'+S.avatar+'" alt="Echo">':'<span>E</span>';
+  var h='';
+  h+='<header class="top">'
+   +'<label class="ava" title="Trocar imagem">'+ava+'<input type="file" accept="image/*" data-bind="avatar"></label>'
+   +'<div class="who"><h1>Echo</h1><p>Kenku, Feiticeiro (Fênix) nível 3 · Eremita · Leal e Bom · Emerald Enclave</p></div>'
+   +'<div class="actions">'
+   +'<div class="inata"><button class="btn '+(S.inOn?"on":"pri")+'" data-act="inata">'+(S.inOn?"Inata ativa":"Ativar Inata")+'</button>'
+   +'<span class="rnd">Rodada <b class="num">'+S.round+'/'+ROUNDS+'</b><button class="btn xs" data-act="round">Próxima</button></span></div>'
+   +'<button class="btn" data-act="undo">Desfazer</button>'
+   +'<button class="btn" data-act="rest">Descanso longo</button>'
+   +'</div></header>';
+
+  h+='<div class="vitals">';
+  h+='<section class="panel pad" id="vitals"><div class="ptitle">'+ic("heart")+'Pontos de vida<span class="grow"></span><span class="mut" style="text-transform:none;letter-spacing:0">Dados de vida '+(HD-S.hdUsed)+'/'+HD+' (d6)</span></div>'
+   +'<div class="hpnum"><span class="'+hpCls+'">'+S.hp+'</span><span class="max num">/ '+MAXHP+'</span>'+(S.temp?'<span class="tmp num">+'+S.temp+' temporários</span>':'')+'</div>'
+   +'<div class="bar" style="--seg:'+(100/MAXHP)+'%"><div class="ghost" id="ghost"></div><div class="fill '+st+'" id="fill"></div><div class="ticks"></div></div>'
+   +'<div class="hpctl"><input id="amt" type="number" min="0" inputmode="numeric" placeholder="valor" aria-label="Valor de dano ou cura">'
+   +'<button class="btn" data-act="dmg">Dano</button><button class="btn" data-act="heal">Cura</button></div>'
+   +'<div class="hprow">'
+   +'<div><span class="lab">PV temp.</span>'+stepper("temp",S.temp)+'</div>'
+   +'<div><span class="lab">DV usados</span>'+stepper("hd",S.hdUsed)+'</div>'
+   +'<div><span class="lab">Morte</span><span class="pips" title="Sucessos">'+pips("s",S.ds)+'</span> <span class="pips" title="Falhas" style="margin-left:8px">'+pips("f",S.df)+'</span></div>'
+   +'</div></section>';
+  h+='<div class="tiles">'
+   +tile("CA","shield",18,"Sombra 13 + DES 3 + Túnica 2")
+   +tile("Iniciativa","bolt","+3","DES")
+   +tile("Deslocamento","boot","9 m","")
+   +tile("CD de magia","flame",cd(),S.inOn?"Inata ativa (+1)":"15 com Inata",S.inOn?"hot":"","cd")
+   +tile("Ataque mágico","target","+6",S.inOn?"com vantagem":"vantagem com Inata",S.inOn?"hot":"")
+   +tile("Percepção passiva","eye",10,"")
+   +'</div></div>';
+  return {html:h,pct:pct};
+}
+function pips(kind,n){var h="";for(var i=0;i<3;i++){h+='<button class="pip '+kind+(i<n?" on":"")+'" data-act="death" data-k="'+kind+'" data-i="'+i+'" aria-label="'+(kind==="s"?"sucesso":"falha")+' '+(i+1)+'"></button>';}return h;}
+
+function renderTabs(){
+  var T=[["jogo","Jogo","bolt"],["magias","Magias","flame"],["ficha","Ficha","user"],["poderes","Poderes","star"],["itens","Itens","bag"]];
+  return '<nav class="tabs" role="tablist">'+T.map(function(t){return '<button role="tab" class="'+(S.tab===t[0]?"act":"")+'" data-act="tab" data-t="'+t[0]+'">'+ic(t[2])+t[1]+'</button>';}).join("")+'</nav>';
+}
+
+/* ================= aba Jogo ================= */
+function tabJogo(){
+  var h='<div class="cols"><div class="stack">';
+  // recursos
+  h+='<section class="panel pad"><div class="ptitle">'+ic("flame")+'Recursos</div>'
+   +'<div class="res"><div class="name">Slots de 1º nível<small>'+avail(1)+' de '+SLOTS[1]+' disponíveis</small></div>'+gems("round",SLOTS[1],S.used[1],"slot1")+'</div>'
+   +'<div class="res"><div class="name">Slots de 2º nível<small>'+avail(2)+' de '+SLOTS[2]+' disponíveis</small></div>'+gems("round",SLOTS[2],S.used[2],"slot2")+'</div>'
+   +'<div class="res"><div class="name">Pontos de feitiçaria<small>'+(SPMAX-S.spUsed)+' de '+SPMAX+' disponíveis</small></div>'+gems("dia",SPMAX,S.spUsed,"sp")+'</div>'
+   +'<div class="res"><div class="name">Usos da Inata<small>'+(INMAX-S.inUsed)+' de '+INMAX+' disponíveis</small></div>'+gems("hexa",INMAX,S.inUsed,"inuse")+'</div>'
+   +'<p class="mut" style="font-size:13px;margin:10px 0 0">Toque numa gema para gastar ou recuperar.</p></section>';
+  // metamagia
+  h+='<section class="panel pad"><div class="ptitle">'+ic("star")+'Metamagia</div>'
+   +'<div class="pw"><h3>Magia Duplicada <span class="tag am">custo = nível da magia</span></h3>'
+   +'<p>Magia que só pode ter 1 criatura como alvo e não é pessoal ganha uma segunda criatura no alcance. Truque custa 1. <b>Não funciona no Raio Ardente</b>, que já tem vários alvos.</p>'
+   +'<div class="cast"><button class="btn xs" data-act="meta" data-n="1">Gastar 1 PM</button><button class="btn xs" data-act="meta" data-n="2">Gastar 2 PM</button></div></div>'
+   +'<div class="pw"><h3>Magia Potencializada <span class="tag am">1 PM</span></h3>'
+   +'<p>Depois de rolar o dano, rerrola até 4 dados (seu CAR) e usa a nova rolagem. Pode somar com outra metamagia na mesma magia.</p>'
+   +'<div class="cast"><button class="btn xs" data-act="meta" data-n="1">Gastar 1 PM</button></div></div></section>';
+  h+='</div><div class="stack">';
+  // inata
+  h+='<section class="panel pad"><div class="ptitle">'+ic("bolt")+'Feitiçaria Inata</div><div class="inbox '+(S.inOn?"on":"")+'">'
+   +(S.inOn?'<b>Ativa</b> · rodada '+S.round+' de '+ROUNDS+'. Enquanto durar:':'Desligada. Ao ativar (ação bônus, 1 min):')
+   +'<ul><li>CD das magias <b>15</b></li><li><b>Vantagem</b> em ataques mágicos</li><li>Dano de fogo <b>+4</b> em cada dano</li><li>Primeiro dado de fogo do turno <b>+8</b></li><li>Luz de 9 m; quem te acerta corpo a corpo sofre <b>4</b> de fogo</li></ul></div></section>';
+  // turno
+  h+='<section class="panel pad"><div class="ptitle">'+ic("play")+'Turno<span class="grow"></span><button class="btn xs" data-act="newturn">Novo turno</button></div>'
+   +TURN.map(function(t){return '<div class="chk '+(S.turn[t[0]]?"on":"")+'" data-act="turn" data-k="'+t[0]+'"><div class="box"></div><div><span>'+t[1]+'</span>'+(t[2]?'<small>'+t[2]+'</small>':'')+'</div></div>';}).join("")
+   +'<div class="sub">Concentrando em</div><input class="field" data-bind="conc" value="'+esc(S.conc)+'" placeholder="Nenhuma magia. Teste de CON +5 ao sofrer dano (CD 10 ou metade do dano)">'
+   +'<div class="sub">Túnica guarda</div><input class="field" data-bind="tunic" value="'+esc(S.tunic)+'" placeholder="Feitiço guardado (até nível 3)"></section>';
+  // condições
+  h+='<section class="panel pad"><div class="ptitle">'+ic("shield")+'Condições</div><div class="chips">'
+   +CONDS.map(function(c){return '<button class="chip '+(S.cond[c]?"on":"")+'" data-act="cond" data-c="'+c+'">'+c+'</button>';}).join("")+'</div></section>';
+  // ataques
+  h+='<section class="panel pad"><div class="ptitle">'+ic("target")+'Ataques (consulta)</div>'
+   +ATTACKS.map(function(a){return '<div class="ref"><div class="nm">'+a[0]+'<small>'+a[1]+'</small></div><div class="hit-b num">'+a[2]+'</div><div class="dm">'+a[3]+'</div></div>';}).join("")
+   +'</section>';
+  h+='</div></div>';
+  return h;
+}
+
+/* ================= aba Magias ================= */
+function spellCard(sp){
+  var tags='';
+  if(sp.dup)tags+='<span class="tag am">Duplicável</span>';
+  if(sp.bonus)tags+='<span class="tag rd">Bônus Fênix</span>';
+  if(sp.ritual)tags+='<span class="tag">Ritual</span>';
+  if(sp.multi)tags+='<span class="tag rd">Não duplica</span>';
+  var h='<div class="spell"><div class="sp1"><h3>'+sp.n+'</h3>'+tags+'</div>'
+   +'<div class="meta">'+sp.t+' · '+sp.r+' · '+sp.c+' · '+sp.d+'</div><p class="desc">'+sp.s+'</p>';
+  if(sp.fire)h+='<div class="fire">Inata ativa: +4 em cada dano de fogo; o primeiro dado de fogo do turno recebe +8.</div>';
+  if(sp.fireopt)h+='<div class="fire">Inata ativa: se escolher fogo, +4 de dano e +8 no primeiro dado do turno.</div>';
+  if(sp.lv>0){
+    h+='<div class="cast">';
+    if(castMenu===sp.id){
+      for(var lv=sp.lv;lv<=2;lv++){h+='<button class="btn xs pri" data-act="castat" data-sp="'+sp.id+'" data-lv="'+lv+'" '+(avail(lv)<1?"disabled":"")+'>Slot de '+lv+'º ('+avail(lv)+')</button>';}
+      h+='<button class="btn xs" data-act="castcancel">Cancelar</button>';
+    }else{
+      h+='<button class="btn xs pri" data-act="cast" data-sp="'+sp.id+'">Conjurar</button>';
+    }
+    if(sp.fam)h+='<button class="btn xs '+(S.famil?"on":"")+'" data-act="famil">'+(S.famil?"Familiar ativo":"Familiar inativo")+'</button>';
+    h+='</div>';
+  }
+  return h+'</div>';
+}
+function tabMagias(){
+  function sect(title,lv){
+    var list=SPELLS.filter(function(s){return s.lv===lv;});
+    var head='<div class="lvhead"><h2>'+title+'</h2>';
+    if(lv>0)head+=gems("round",SLOTS[lv],S.used[lv],"slot"+lv)+'<span class="mut">'+avail(lv)+' de '+SLOTS[lv]+'</span>';
+    head+='</div>';
+    return '<section class="panel pad">'+head+list.map(spellCard).join("")+'</section>';
+  }
+  return '<div class="spgrid"><div class="stack">'+sect("Truques",0)+sect("Nível 2",2)+'</div><div class="stack">'+sect("Nível 1",1)
+   +'<section class="panel pad"><div class="ptitle">Pontos de feitiçaria</div>'+gems("dia",SPMAX,S.spUsed,"sp")+'<p class="mut" style="font-size:13px;margin:10px 0 0">'+(SPMAX-S.spUsed)+' de '+SPMAX+' disponíveis.</p></section></div></div>';
+}
+
+/* ================= aba Ficha ================= */
+function tabFicha(){
+  var h='<div class="cols"><div class="stack">';
+  h+='<section class="panel pad"><div class="ptitle">Atributos</div><div class="attrs">'
+   +ATTRS.map(function(a){return '<div class="panel sm attr"><div class="k">'+a[0]+'</div><div class="m num">'+sg(a[2])+'</div><div class="s num">'+a[1]+'</div></div>';}).join("")
+   +'</div><p class="mut" style="margin:12px 0 0;font-size:13px">Bônus de proficiência +2 · Iniciativa +3 · Deslocamento 9 m</p></section>';
+  h+='<section class="panel pad"><div class="ptitle">Testes de resistência</div><div class="rows">'
+   +SAVES.map(function(s){return '<div class="row2 '+(s[2]?"p":"")+'"><i class="dot"></i><span class="n">'+s[0]+'</span><span class="b num">'+sg(s[1])+'</span></div>';}).join("")
+   +'</div></section>';
+  h+='<section class="panel pad"><div class="ptitle">Proficiências e idiomas</div>'
+   +'<div class="sub" style="margin-top:0">Armas e ferramentas</div><div class="chips"><span class="chip static">Armas simples</span><span class="chip static">Kit de herbalismo</span></div>'
+   +'<div class="sub">Idiomas</div><div class="chips"><span class="chip static">Comum</span><span class="chip static">Ryugâ</span><span class="chip static">Auran</span><span class="chip static">Dracônico</span></div></section>';
+  h+='</div><div class="stack"><section class="panel pad"><div class="ptitle">Perícias<span class="grow"></span>'
+   +'<button class="chip '+(S.onlyProf?"on":"")+'" style="text-transform:none;letter-spacing:0" data-act="onlyprof">Só proficientes</button></div><div class="rows">'
+   +SKILLS.filter(function(s){return !S.onlyProf||s[3];}).map(function(s){return '<div class="row2 '+(s[3]?"p":"")+'"><i class="dot"></i><span class="n">'+s[0]+'</span><span class="a">'+s[1]+'</span><span class="b num">'+sg(s[2])+'</span></div>';}).join("")
+   +'</div></section></div></div>';
+  return h;
+}
+
+/* ================= aba Poderes ================= */
+function tabPoderes(){
+  return '<div class="cols"><section class="panel pad"><div class="ptitle">Características</div>'
+   +POWERS.slice(0,5).map(function(p){return '<div class="pw"><h3>'+p[0]+'<span class="tag">'+p[1]+'</span></h3><p>'+p[2]+'</p></div>';}).join("")+'</section>'
+   +'<section class="panel pad"><div class="ptitle">Túnica, talento e raça</div>'
+   +POWERS.slice(5).map(function(p){return '<div class="pw"><h3>'+p[0]+'<span class="tag">'+p[1]+'</span></h3><p>'+p[2]+'</p></div>';}).join("")+'</section></div>';
+}
+
+/* ================= aba Itens ================= */
+function totalPo(){var m=S.money;return (m.pc/100+m.pp/10+m.pe/2+m.po+m.pl*10);}
+function tabItens(){
+  var h='<div class="cols"><section class="panel pad"><div class="ptitle">'+ic("bag")+'Equipamento<span class="grow"></span><button class="btn xs" data-act="additem">Adicionar</button></div>';
+  h+=S.items.map(function(it,i){return '<div class="item"><input class="field" data-bind="iname" data-i="'+i+'" value="'+esc(it.n)+'" aria-label="Nome do item">'
+    +stepper("iqty",it.q,'data-i="'+i+'"')+'<button class="xbtn" data-act="delitem" data-i="'+i+'" aria-label="Remover">×</button></div>';}).join("");
+  h+='</section><div class="stack"><section class="panel pad"><div class="ptitle">Dinheiro<span class="grow"></span><span class="amber" style="text-transform:none;letter-spacing:0;color:var(--amber)">Total <b class="num" id="tpo">'+totalPo().toFixed(2).replace(/\.00$/,"").replace(".",",")+'</b> po</span></div><div class="three" style="grid-template-columns:repeat(5,1fr)">'
+   +[["pc","PC"],["pp","PP"],["pe","PE"],["po","PO"],["pl","PL"]].map(function(c){return '<div class="panel sm coin '+(c[0]==="po"?"po":"")+'"><div class="k">'+c[1]+'</div><input type="number" inputmode="numeric" min="0" data-bind="money" data-k="'+c[0]+'" value="'+S.money[c[0]]+'" aria-label="'+c[1]+'"></div>';}).join("")
+   +'</div></section><section class="panel pad"><div class="ptitle">Notas</div><textarea class="field" data-bind="notes" placeholder="Campanha, NPCs, objetivos, o que o mestre falou">'+esc(S.notes)+'</textarea></section></div></div>';
+  return h;
+}
+
+/* ================= mini barra ================= */
+function renderMini(){
+  $("#mini").innerHTML='<div class="it num">'+ic("heart").replace('<svg','<svg width="14" height="14"')+'&nbsp;'+S.hp+'<small>/'+MAXHP+(S.temp?' +'+S.temp:'')+'</small></div>'
+   +'<div class="it num">CA 18</div><div class="it num '+(S.inOn?"hot":"")+'">CD '+cd()+'</div>'
+   +'<div class="it num">1º '+avail(1)+'<small>/4</small></div><div class="it num">2º '+avail(2)+'<small>/2</small></div>'
+   +'<div class="it num">PM '+(SPMAX-S.spUsed)+'<small>/3</small></div>'
+   +(S.inOn?'<div class="it hot num">Inata '+S.round+'/'+ROUNDS+'</div>':'');
+}
+
+/* ================= render ================= */
+function render(){
+  var top=renderTop();
+  var body;
+  switch(S.tab){case "magias":body=tabMagias();break;case "ficha":body=tabFicha();break;case "poderes":body=tabPoderes();break;case "itens":body=tabItens();break;default:body=tabJogo();}
+  var app=$("#app");
+  var keepScroll=window.scrollY;
+  app.className="app"+(booting?" boot":"");
+  document.body.classList.toggle("ember-on",!!S.inOn);
+  app.innerHTML=top.html+renderTabs()+'<main class="tabc'+(animTab?" enter":"")+'">'+body+'</main>';
+  animTab=false;
+  // barra de PV com atraso (ghost)
+  var g=$("#ghost"),f=$("#fill"),p=top.pct;
+  var from=(prevPct==null)?0:prevPct;
+  if(booting&&prevPct==null)from=0;
+  g.style.width=from+"%";f.style.width=from+"%";
+  void g.offsetWidth;
+  f.style.width=p+"%";g.style.width=p+"%";
+  prevPct=p;
+  renderMini();
+  window.scrollTo(0,keepScroll);
+  observe();
+  fx=null;
+}
+var io=null;
+function observe(){
+  if(io)io.disconnect();
+  if(!("IntersectionObserver" in window))return;
+  io=new IntersectionObserver(function(es){$("#mini").classList.toggle("show",!es[0].isIntersecting&&es[0].boundingClientRect.top<0);},{threshold:0});
+  var v=$("#vitals"); if(v)io.observe(v);
+}
+
+/* ================= ações ================= */
+function setCount(obj,key,total,i){ // clique numa gema
+  var isUsed=i>=total-obj[key];
+  obj[key]=isUsed?Math.max(0,obj[key]-1):Math.min(total,obj[key]+1);
+}
+document.addEventListener("click",function(e){
+  var t=e.target.closest("[data-act]"); if(!t)return;
+  var a=t.dataset.act, i=+t.dataset.i, d=+t.dataset.d;
+  switch(a){
+    case "tab": S.tab=t.dataset.t; animTab=true; save(); render(); window.scrollTo(0,0); break;
+    case "undo": undo(); break;
+    case "dmg":{
+      var v=parseInt($("#amt").value,10); if(!(v>0)){toast("Digite o valor do dano");break;}
+      mutate(function(){var tp=Math.min(S.temp,v);S.temp-=tp;var r=v-tp;S.hp=Math.max(0,S.hp-r);if(S.hp===0)toast("Em 0 PV: marque os testes contra morte");},{k:"dmg"});
+      break;}
+    case "heal":{
+      var h=parseInt($("#amt").value,10); if(!(h>0)){toast("Digite o valor da cura");break;}
+      mutate(function(){S.hp=Math.min(MAXHP,S.hp+h);if(S.hp>0){S.ds=0;S.df=0;}},{k:"heal"});
+      break;}
+    case "temp": mutate(function(){S.temp=Math.max(0,S.temp+d);}); break;
+    case "hd": mutate(function(){S.hdUsed=Math.max(0,Math.min(HD,S.hdUsed+d));}); break;
+    case "death": mutate(function(){var k=t.dataset.k==="s"?"ds":"df";S[k]=(S[k]===i+1)?i:i+1;}); break;
+    case "slot1": mutate(function(){setCount(S.used,1,SLOTS[1],i);},{k:"slot1",i:i}); break;
+    case "slot2": mutate(function(){setCount(S.used,2,SLOTS[2],i);},{k:"slot2",i:i}); break;
+    case "sp": mutate(function(){setCount(S,"spUsed",SPMAX,i);},{k:"sp",i:i}); break;
+    case "inuse": mutate(function(){setCount(S,"inUsed",INMAX,i);},{k:"inuse",i:i}); break;
+    case "inata":
+      if(!S.inOn){
+        if(S.inUsed>=INMAX){toast("Sem usos da Feitiçaria Inata");break;}
+        mutate(function(){S.inOn=true;S.inUsed++;S.round=1;},{k:"cd"});
+        toast("Feitiçaria Inata ativa: CD 15, vantagem em ataques mágicos");
+      }else{
+        mutate(function(){S.inOn=false;S.round=0;},{k:"cd"}); toast("Feitiçaria Inata encerrada");
+      }
+      break;
+    case "round":
+      mutate(function(){S.round++;if(S.round>ROUNDS){S.inOn=false;S.round=0;toast("Passou 1 minuto: Inata encerrada");}},{k:"cd"});
+      break;
+    case "meta": 
+      var n=+t.dataset.n;
+      if(SPMAX-S.spUsed<n){toast("Pontos de feitiçaria insuficientes");break;}
+      mutate(function(){S.spUsed+=n;},{k:"sp",i:SPMAX-S.spUsed-1});
+      toast("Gastou "+n+" PM");
+      break;
+    case "turn": mutate(function(){S.turn[t.dataset.k]=S.turn[t.dataset.k]?0:1;}); break;
+    case "newturn": mutate(function(){S.turn=freshTurn();}); break;
+    case "cond": mutate(function(){S.cond[t.dataset.c]=!S.cond[t.dataset.c];}); break;
+    case "famil": mutate(function(){S.famil=!S.famil;}); break;
+    case "cast":{
+      var sp=SPELLS.filter(function(x){return x.id===t.dataset.sp;})[0];
+      var opts=[];for(var lv=sp.lv;lv<=2;lv++){if(avail(lv)>0)opts.push(lv);}
+      if(!opts.length){toast("Sem slots disponíveis para "+sp.n);break;}
+      if(opts.length===1){var L=opts[0];mutate(function(){S.used[L]++;},{k:"slot"+L,i:SLOTS[L]-S.used[L]-1});toast(sp.n+": slot de "+L+"º gasto");}
+      else{castMenu=sp.id;render();}
+      break;}
+    case "castat":{
+      var L2=+t.dataset.lv; var nm=SPELLS.filter(function(x){return x.id===t.dataset.sp;})[0].n;
+      castMenu=null; mutate(function(){S.used[L2]++;},{k:"slot"+L2,i:SLOTS[L2]-S.used[L2]-1}); toast(nm+": slot de "+L2+"º gasto");
+      break;}
+    case "castcancel": castMenu=null; render(); break;
+    case "onlyprof": S.onlyProf=!S.onlyProf; save(); render(); break;
+    case "iqty": mutate(function(){S.items[i].q=Math.max(0,S.items[i].q+d);}); break;
+    case "additem": mutate(function(){S.items.push({n:"Novo item",q:1});}); break;
+    case "delitem": mutate(function(){S.items.splice(i,1);}); break;
+    case "rest": confirmRest(); break;
+  }
+});
+function confirmRest(){
+  var m=$("#modal");
+  m.innerHTML='<div class="panel pad"><div class="ptitle">Descanso longo</div><p style="margin:0 0 14px">Recupera todos os PV, slots, pontos de feitiçaria e usos da Inata, e metade dos dados de vida (mínimo 1). Zera PV temporário, turno e Inata ativa.</p><div class="actions"><button class="btn pri" data-m="ok">Confirmar</button><button class="btn" data-m="no">Cancelar</button></div></div>';
+  m.classList.add("show");
+  m.onclick=function(ev){
+    var b=ev.target.closest("[data-m]");
+    if(!b&&ev.target!==m)return;
+    m.classList.remove("show");
+    if(b&&b.dataset.m==="ok"){
+      mutate(function(){
+        S.hp=MAXHP;S.temp=0;S.used={1:0,2:0};S.spUsed=0;S.inUsed=0;S.inOn=false;S.round=0;S.ds=0;S.df=0;
+        S.hdUsed=Math.max(0,S.hdUsed-Math.max(1,Math.floor(HD/2)));S.turn=freshTurn();
+      },{k:"heal"});
+      toast("Descanso longo concluído");
+    }
+  };
+}
+
+/* campos de texto e número: salvam sem redesenhar */
+document.addEventListener("input",function(e){
+  var b=e.target.dataset.bind; if(!b)return;
+  var v=e.target.value;
+  if(b==="conc")S.conc=v;
+  else if(b==="tunic")S.tunic=v;
+  else if(b==="notes")S.notes=v;
+  else if(b==="iname")S.items[+e.target.dataset.i].n=v;
+  else if(b==="money"){S.money[e.target.dataset.k]=Math.max(0,parseInt(v,10)||0);var t=$("#tpo");if(t)t.textContent=totalPo().toFixed(2).replace(/\.00$/,"").replace(".",",");}
+  save();
+});
+document.addEventListener("change",function(e){
+  if(e.target.dataset.bind!=="avatar")return;
+  var f=e.target.files&&e.target.files[0]; if(!f)return;
+  var r=new FileReader();
+  r.onload=function(){
+    var img=new Image();
+    img.onload=function(){
+      var c=document.createElement("canvas"),z=240,s=Math.min(img.width,img.height);
+      c.width=c.height=z;c.getContext("2d").drawImage(img,(img.width-s)/2,(img.height-s)/2,s,s,0,0,z,z);
+      S.avatar=c.toDataURL("image/jpeg",.85);save();render();
+    };
+    img.src=r.result;
+  };
+  r.readAsDataURL(f);
+});
+document.addEventListener("keydown",function(e){
+  if(e.key==="Enter"&&e.target.id==="amt"){e.preventDefault();var b=e.shiftKey?"heal":"dmg";var btn=document.querySelector('[data-act="'+b+'"]');if(btn)btn.click();}
+  if(e.key==="Escape"){$("#modal").classList.remove("show");}
+});
+
+/* ================= brasas ao fundo ================= */
+(function(){
+  var cv=$("#embers"),cx=cv.getContext("2d"),W,H,P=[];
+  if(window.matchMedia&&matchMedia("(prefers-reduced-motion: reduce)").matches)return;
+  function rs(){W=cv.width=innerWidth;H=cv.height=innerHeight;}
+  rs();addEventListener("resize",rs);
+  for(var i=0;i<38;i++)P.push(mk(true));
+  function mk(r){return {x:Math.random()*W,y:r?Math.random()*H:H+10,s:Math.random()*1.8+.6,v:Math.random()*.35+.12,dx:(Math.random()-.5)*.25,a:Math.random()*.6+.2};}
+  function tick(){
+    if(document.hidden){requestAnimationFrame(tick);return;}
+    cx.clearRect(0,0,W,H);
+    var boost=document.body.classList.contains("ember-on")?1.8:1;
+    for(var i=0;i<P.length;i++){
+      var p=P[i];p.y-=p.v*boost;p.x+=p.dx+Math.sin(p.y/60)*.15;
+      if(p.y<-10)P[i]=mk(false);
+      cx.beginPath();cx.fillStyle="rgba(255,"+(120+Math.floor(p.a*100))+",40,"+(p.a*.8)+")";
+      cx.shadowColor="rgba(255,100,20,.8)";cx.shadowBlur=8;cx.arc(p.x,p.y,p.s,0,6.283);cx.fill();
+    }
+    requestAnimationFrame(tick);
+  }
+  tick();
+})();
+
+render();
+setTimeout(function(){booting=false;var a=$("#app");if(a)a.classList.remove("boot");},1300);
+})();
+</script>
+</body>
+</html>
