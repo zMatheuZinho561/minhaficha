@@ -110,7 +110,7 @@ button,input,textarea{font:inherit;color:inherit}
 @keyframes bump{0%{transform:scale(1.5)}100%{transform:none}}
 
 /* ---------- abas ---------- */
-.tabs{display:grid;grid-template-columns:repeat(6,1fr);gap:8px;margin-bottom:14px}
+.tabs{display:grid;grid-template-columns:repeat(7,1fr);gap:8px;margin-bottom:14px}
 .tabs button{cursor:pointer;background:#0b0705;border:0;border-bottom:2px solid var(--line);padding:12px 6px;font-size:14px;font-weight:600;color:var(--mut);letter-spacing:.04em;display:flex;gap:8px;align-items:center;justify-content:center;transition:color .15s,background .15s,border-color .15s}
 .tabs button svg{width:17px;height:17px}
 .tabs button:hover{color:var(--text);background:#160d08}
@@ -123,6 +123,16 @@ button,input,textarea{font:inherit;color:inherit}
 .prose p{font-size:14.5px;line-height:1.75;color:#e8dcc8;margin:0 0 1em}
 .prose p:first-of-type::first-letter{font-family:var(--f);font-size:2.6em;float:left;line-height:1;margin:2px 8px 0 0;color:var(--amber)}
 .prose .say{border-left:2px solid var(--ember);padding-left:12px;color:var(--amber);font-style:italic}
+
+/* ---------- combos ---------- */
+.combo{display:grid;grid-template-columns:auto minmax(0,1fr);gap:12px;align-items:start}
+.combo .rank{font-family:var(--f);font-size:34px;line-height:1;color:var(--amber);text-shadow:0 0 18px rgba(245,184,61,.5);min-width:44px;text-align:center}
+.combo h4{font-family:var(--f);font-size:15px;letter-spacing:.05em;text-transform:uppercase}
+.combo .cost{display:inline-block;font-family:var(--f);font-size:10.5px;letter-spacing:.14em;color:#0d0a08;background:linear-gradient(135deg,var(--amber),var(--ember));padding:2px 10px;margin:6px 0 6px;clip-path:polygon(8px 0,100% 0,calc(100% - 8px) 100%,0 100%)}
+.combo .cost.free{background:var(--line2);color:var(--text)}
+.combo ol{margin:4px 0 0 18px;font-size:13.5px;line-height:1.65;color:#e8dcc8}
+.combo ol b{color:var(--text)}
+.warn{margin-top:8px;font-size:12.5px;color:var(--amber);border:1px solid var(--ember);padding:7px 10px;background:rgba(255,122,24,.07)}
 
 .cols{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:14px;align-items:start}
 .stack{display:grid;gap:14px}
@@ -264,7 +274,7 @@ body.ember-on .who h1{color:#ffd9a6;text-shadow:0 0 22px rgba(255,122,24,.7)}
   .app{padding:12px 12px 100px}
   .who h1{font-size:32px}
   .hpnum .cur{font-size:68px}
-  .tabs{position:fixed;left:0;right:0;bottom:0;z-index:30;margin:0;gap:0;grid-template-columns:repeat(6,1fr);background:rgba(10,7,6,.97);border-top:1px solid var(--line2);padding-bottom:env(safe-area-inset-bottom,0)}
+  .tabs{position:fixed;left:0;right:0;bottom:0;z-index:30;margin:0;gap:0;grid-template-columns:repeat(7,1fr);background:rgba(10,7,6,.97);border-top:1px solid var(--line2);padding-bottom:env(safe-area-inset-bottom,0)}
   .tabs button{flex-direction:column;gap:3px;font-size:11px;padding:9px 2px;border-bottom:0;border-top:2px solid transparent}
   .tabs button.act{border-top-color:var(--ember)}
   .two{grid-template-columns:1fr}
@@ -303,6 +313,7 @@ body.ember-on .who h1{color:#ffd9a6;text-shadow:0 0 22px rgba(255,122,24,.7)}
     <symbol id="i-bag" viewBox="0 0 24 24"><path d="M5 8h14l1 13H4z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/></symbol>
     <symbol id="i-user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.5 3.5-7 8-7s8 2.5 8 7"/></symbol>
     <symbol id="i-book" viewBox="0 0 24 24"><path d="M12 5c-2-1.5-5-2-8-2v16c3 0 6 .5 8 2 2-1.5 5-2 8-2V3c-3 0-6 .5-8 2z"/><path d="M12 5v16"/></symbol>
+    <symbol id="i-zap" viewBox="0 0 24 24"><path d="M13 1L3 14h7l-1 10 11-13h-7z"/><path d="M19 3l2 2M21 3l-2 2"/></symbol>
   </defs>
 </svg>
 
@@ -449,7 +460,7 @@ function renderTop(){
 function pips(kind,n){var h="";for(var i=0;i<3;i++){h+='<button class="pip '+kind+(i<n?" on":"")+'" data-act="death" data-k="'+kind+'" data-i="'+i+'" aria-label="'+(kind==="s"?"sucesso":"falha")+' '+(i+1)+'"></button>';}return h;}
 
 function renderTabs(){
-  var T=[["jogo","Jogo","bolt"],["magias","Magias","flame"],["ficha","Ficha","user"],["poderes","Poderes","star"],["itens","Itens","bag"],["historia","História","book"]];
+  var T=[["jogo","Jogo","bolt"],["magias","Magias","flame"],["ficha","Ficha","user"],["poderes","Poderes","star"],["itens","Itens","bag"],["historia","História","book"],["combos","Combos","zap"]];
   return '<nav class="tabs" role="tablist">'+T.map(function(t){return '<button role="tab" class="'+(S.tab===t[0]?"act":"")+'" data-act="tab" data-t="'+t[0]+'">'+ic(t[2])+t[1]+'</button>';}).join("")+'</nav>';
 }
 
@@ -593,6 +604,43 @@ function tabHistoria(){
   return h+'</div></section></div>';
 }
 
+/* ================= aba Combos ================= */
+var COMBOS=[
+{n:1,t:"Abertura explosiva: Inata + Raio Ardente + Potencializada",c:"1 slot 2º + 0–1 PM",s:["<b>Turno 1:</b> ação bônus ativa a Feitiçaria Inata (não é magia, então não te limita a truque) e conjura Raio Ardente com slot de 2º nível.","Os 3 ataques saem com <b>vantagem, CD 15</b> e <b>2d6+4 de fogo por raio</b>, mais <b>+8 no primeiro dado de fogo do turno</b>. Se todos acertam, a média é cerca de <b>41 de dano</b>.","Gaste <b>1 PM em Potencializada</b> para rerrolar até 4 dos 6 dados (os mais baixos)."],w:"Confirme com o mestre se o +4 vale por raio, como está na sua ficha."},
+{n:2,t:"Dano sem slot: Raio de Fogo duplicado",c:"1 PM",s:["Com a Inata ativa, <b>Magia Duplicada (1 PM em truque)</b> manda dois Raios de Fogo, cada um com vantagem e <b>1d10+4</b>. O primeiro dado do turno ganha <b>+8</b>.","É o que você faz nas rodadas 2 em diante, quando os slots já acabaram. Com 3 PM, são <b>3 rodadas</b> assim.","Raio de Fogo também acende objetos inflamáveis, o que leva ao combo 6."],w:""},
+{n:3,t:"Orbe Cromática duplicada, sempre em fogo",c:"1 slot 1º + 1 PM",s:["<b>Dois alvos</b>, ataque com vantagem cada, <b>3d8+4 em fogo</b>. Escolher fogo ativa os bônus da Fênix.","Se o alvo resistir a fogo, troque o tipo (ácido, frio, elétrico, trovão ou veneno) e perde só o bônus.","Pode somar <b>Potencializada</b> (rerrola até 3 dados), porque ela é a exceção que acumula com outra metamagia."],w:""},
+{n:4,t:"Túnica guardando Raio Ardente",c:"sem slot",f:1,s:["A Túnica guarda um feitiço de até nível 3 <b>sem custar slot</b>: deixe o Raio Ardente pronto e ainda tenha os 2 slots de 2º nível livres.","É uma conjuração extra por dia."],w:"Pergunte ao mestre como ela recarrega. Se for por descanso, vale uma extra por dia."},
+{n:5,t:"Cura à distância com o Familiar",c:"toque via familiar",s:["<b>Curar Ferimentos</b> tem alcance de toque, e o familiar pode entregar magia de toque <b>usando a reação dele</b>. Você cura um aliado afastado sem entrar na luta.","<b>Duplicada (1 PM)</b> só funciona se o mestre aceitar que o segundo alvo também seja alcançado pelo familiar.","<b>Potencializada não vale aqui:</b> ela só rerrola dano, não cura."],w:"Pergunte ao mestre antes sobre a Duplicada no segundo alvo."},
+{n:6,t:"Óleo, estrepes e fogo",c:"itens",f:1,s:["Derrame o <b>óleo numa área de 1,5 m</b>, jogue <b>estrepes</b> por cima e acenda com Raio de Fogo. Quem passar sofre dano de fogo e fura o pé.","<b>Mãos Mágicas</b> pode abrir o frasco e derramar à distância, mas ela não ataca."],w:"Peça ao mestre para validar o uso criativo."},
+{n:7,t:"Defesa que machuca",c:"passivo + 1 PM",s:["<b>Armadura das Sombras (CA 18 com a Túnica)</b> e o <b>Manto de Chamas</b>: inimigo corpo a corpo que acerta você sofre <b>4 de fogo</b>.","Funciona bem com <b>Mãos Flamejantes</b> em cone contra quem te cerca, com <b>Potencializada rerrolando os 3 dados de 3d6 por 1 PM</b>."],w:""},
+{n:8,t:"Utilidade com Kenku",c:"sem custo",f:1,s:["<b>Mimetismo + Ilusão Menor:</b> imite uma voz que você ouviu e crie uma ilusão de som em outro ponto, para distrair guardas ou atrair inimigos.","O <b>familiar pode explorar</b> e você enxerga pelos sentidos dele. Se for coruja, ele usa Ajudar sem provocar ataque de oportunidade."],w:""}
+];
+var TURNS=[
+{n:"Turno 1 — abertura",c:"1 slot 2º + 0–1 PM",s:["<b>Ação bônus:</b> Feitiçaria Inata (CD 15, vantagem em ataques mágicos).","<b>Ação:</b> Raio Ardente com slot de 2º nível. 3 raios, <b>2d6+4 de fogo cada</b>, +8 no primeiro dado de fogo do turno.","<b>Se os dados saírem baixos:</b> Potencializada (1 PM, rerrola até 4 dados)."]},
+{n:"Turno 2 — sustentar",c:"0–1 PM, nenhum slot",s:["<b>Raio de Fogo duplicado</b> em dois alvos (1 PM), cada um com vantagem, 1d10+4.","<b>Só um alvo à vista:</b> Raio de Fogo normal, sem gastar PM."]},
+{n:"Turno 3 — decidir",c:"conforme a mesa",s:["<b>Inata ainda ativa e alvos juntos:</b> segundo slot de 2º em Raio Ardente.","<b>Alvos separados:</b> Orbe Cromática duplicada em fogo (slot de 1º + 1 PM, 3d8+4).","<b>PV baixos (você tem 16):</b> Curar Ferimentos num aliado, ou recue e use truque.","<b>Guarde 1 PM</b> para Potencializada no turno decisivo."]}
+];
+function tabCombos(){
+  var h='<section class="panel pad"><div class="ptitle">'+ic("zap")+'Combos — do mais forte ao mais sustentável</div>'
+   +'<p class="mut" style="font-size:13px;margin:0 0 4px">Baseado na sua ficha. Parte depende de como o mestre lê as regras da Fênix e da Túnica, que são customizadas — o aviso aparece onde vale confirmar.</p></section>';
+  h+=COMBOS.map(function(c){
+    var b='<section class="panel pad"><div class="combo"><div class="rank num">'+c.n+'</div><div><h4>'+c.t+'</h4>'
+     +'<span class="cost'+(c.f?" free":"")+'">'+c.c+'</span><ol>'+c.s.map(function(s){return '<li>'+s+'</li>';}).join("")+'</ol>'
+     +(c.w?'<div class="warn">Mestre: '+c.w+'</div>':'')+'</div></div></section>';
+    return b;
+  }).join("");
+  h+='<section class="panel pad"><div class="ptitle">'+ic("play")+'Ordem do turno — 3 primeiros turnos</div></section>';
+  h+=TURNS.map(function(t){
+    return '<section class="panel pad"><div class="combo"><div class="rank num">T'+t.n.charAt(6)+'</div><div><h4>'+t.n+'</h4>'
+     +'<span class="cost">'+t.c+'</span><ol>'+t.s.map(function(s){return '<li>'+s+'</li>';}).join("")+'</ol></div></div></section>';
+  }).join("");
+  h+='<section class="panel pad"><div class="ptitle">'+ic("eye")+'Avisos para a mesa</div>'
+   +'<div class="mrow"><div class="inf"><p>Você só tem <b>6 slots e 3 PM</b> no total: combos 1, 3 e 4 gastam tudo rápido. Em luta longa, o <b>combo 2</b> é o que mais rende.</p></div></div>'
+   +'<div class="mrow"><div class="inf"><p>Manto de Chamas e Túnica são <b>regras customizadas</b>. Mostre este texto ao mestre antes de apostar a sessão neles.</p></div></div>'
+   +'<div class="mrow"><div class="inf"><p>A Inata dura <b>1 minuto (10 rodadas)</b>. Com a aba Jogo, marque a rodada em “Próxima”.</p></div></div></section>';
+  return '<div class="stack">'+h+'</div>';
+}
+
 /* ================= mini barra ================= */
 function renderMini(){
   $("#mini").innerHTML='<div class="it num">'+ic("heart").replace('<svg','<svg width="14" height="14"')+'&nbsp;'+S.hp+'<small>/'+MAXHP+(S.temp?' +'+S.temp:'')+'</small></div>'
@@ -606,7 +654,7 @@ function renderMini(){
 function render(){
   var top=renderTop();
   var body;
-  switch(S.tab){case "magias":body=tabMagias();break;case "ficha":body=tabFicha();break;case "poderes":body=tabPoderes();break;case "itens":body=tabItens();break;case "historia":body=tabHistoria();break;default:body=tabJogo();}
+  switch(S.tab){case "magias":body=tabMagias();break;case "ficha":body=tabFicha();break;case "poderes":body=tabPoderes();break;case "itens":body=tabItens();break;case "historia":body=tabHistoria();break;case "combos":body=tabCombos();break;default:body=tabJogo();}
   var app=$("#app");
   var keepScroll=window.scrollY;
   app.className="app"+(booting?" boot":"");
